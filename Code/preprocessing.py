@@ -19,16 +19,16 @@ class Preprocess:
         self.df = df
 
     def drop_columns(self):
-        df = self.df.drop(['ncodpers',
+        self.df = self.df.drop(['ncodpers',
                            'fecha_dato',
                            'ult_fec_cli_1t',
                            'conyuemp',
                            'fecha_alta',
                            'nomprov'], axis=1)
-        return df
+        return self.df
 
     def rename_targets(self):
-        df = self.df.rename(columns={
+        self.df = self.df.rename(columns={
             'ind_ahor_fin_ult1': 'savings_acct',
             'ind_aval_fin_ult1': 'guarantees',
             'ind_cco_fin_ult1': 'curr_acct',
@@ -44,31 +44,74 @@ class Preprocess:
             'ind_ecue_fin_ult1': 'e_acct',
             'ind_fond_fin_ult1': 'funds',
             'ind_hip_fin_ult1': 'mortgage',
-            'ind_plan_fin_ult1': 'pensions',
+            'ind_plan_fin_ult1': 'pensions_plan',
             'ind_pres_fin_ult1': 'loans',
             'ind_reca_fin_ult1': 'taxes',
             'ind_tjcr_fin_ult1': 'credit_card',
             'ind_valo_fin_ult1': 'securities',
             'ind_viv_fin_ult1': 'home_acct',
             'ind_nomina_ult1': 'payroll',
-            'ind_nom_pens_ult1': 'pensions',
+            'ind_nom_pens_ult1': 'pensions_nom',
             'ind_recibo_ult1': 'direct_debit'
         })
 
-        return df
+        return self.df
 
     def encode_features(self):
-        df = pd.get_dummies(self.df)
-        return df
+        self.df = pd.get_dummies(self.df)
+        return self.df
 
     def encode_target(self):
         le = LabelEncoder()
-        for columns in self.df:
-            print(columns)
-            y = le.fit_transform(self.df[columns])
-            print(y)
-        return y
+        self.df = self.df.apply(le.fit_transform)
+        return self.df
 
+    def count_feature_values(self):
+        """
+         Counts how many values are in one feature
+        """
+        for col in self.df:
+             print('FEATURE COUNTER: \n')
+             print(self.df[col].value_counts(), '\n')
+
+
+class FeatureImportanceRfc:
+
+    def __init__(self, X, y):
+        self.X = X
+        self.y = y
+
+    def feature_importance(self):
+        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=0.5, random_state=0)
+        clf = RandomForestClassifier(n_estimators=10000, random_state=0, n_jobs=-1)
+        clf.fit(X_train, y_train)
+        feat_labels = self.X.columns
+        for feature in zip(feat_labels, clf.feature_importances_):
+            print(feature)
+
+# class FeatureImportanceRfc:
+#
+#     def __init__(self, X, y):
+#         self.X = X
+#         self.y = y
+#
+#     def feature_importance(self):
+#         rnd_clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=42)
+#         rnd_clf.fit(self.X, self.y)
+#         print(rnd_clf.feature_importances_)
+        # for name, importance in zip(self.X, rnd_clf.feature_importances_):
+        #     print(name, "=", importance)
+
+    # def print_feature_importance(self):
+    # features = iris['feature_names']
+    # importances = rnd_clf.feature_importances_
+    # indices = np.argsort(importances)
+    #
+    # plt.title('Feature Importances')
+    # plt.barh(range(len(indices)), importances[indices], color='b', align='center')
+    # plt.yticks(range(len(indices)), [features[i] for i in indices])
+    # plt.xlabel('Relative Importance')
+    # plt.show()
 
 class FsChi2:
 
@@ -77,7 +120,6 @@ class FsChi2:
         self.y = y
 
     def chi2(self):
-
         # Two features with highest chi-squared statistics are selected
         chi2_features = SelectKBest(chi2, k=2)
         X_kbest_features = chi2_features.fit_transform(self.X, self.y)

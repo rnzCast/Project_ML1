@@ -92,7 +92,7 @@ def main():
     # print("DROP IRRELEVANT COLUMNS TABLE \n")
     # print(tabulate(X.head(20), headers=X.columns, tablefmt="grid"), '\n')
     #
-    # """RENAME TARGETS"""
+    """RENAME TARGETS"""
     # preprocess = pre.Preprocess(targets)
     # targets = preprocess.rename_targets()
     # print("RENAMED TARGETS \n")
@@ -106,7 +106,7 @@ def main():
     # name = 'X2'
     # save_df = rd.SaveDf(dir_base, X, name)
     # save_df.save_dataframe()
-    #
+
     # name = 'targets2'
     # save_df = rd.SaveDf(dir_base, targets, name)
     # save_df.save_dataframe()
@@ -116,32 +116,26 @@ def main():
     ##########################################
     X2 = pd.read_pickle(dir_base+"/X2.pickle")
     targets2 = pd.read_pickle(dir_base+"/targets2.pickle")
-    print(tabulate(X2.head(20), headers=X2.columns, tablefmt="grid"), '\n')
-    print(tabulate(targets2.head(20), headers=targets2.columns, tablefmt="grid"), '\n')
+    # print(tabulate(targets2.head(1000), headers=targets2.columns, tablefmt="grid"), '\n')
 
     ##########################################
     # PREPROCESSING - FEATURE SELECTION
     ##########################################
 
     """ENCODE CATEGORICAL FEATURES"""
-    # encode_x = pre.Preprocess(X2)
-    # X2 = encode_x.encode_features()
-    # print(tabulate(X2.head(20), headers=X2.columns, tablefmt="grid"))
+    encode_x = pre.Preprocess(X2)
+    X2 = encode_x.encode_features()
+    # encode_x.count_feature_values()
+    print(tabulate(X2.head(20), headers=X2.columns, tablefmt="grid"), '\n')
 
     """ENCODE TARGET"""
-    # encode_y = pre.Preprocess(targets2)
-    # targets2 = encode_y.encode_target()
-    # print(tabulate(targets2.head(20), headers=targets2.columns, tablefmt="grid"))
-
-    # pd.DataFrame(data=targets2).value_counts()
-
-    # """CHANGE DTYPES"""
-    # X = X.astype({'age': 'float'}).dtypes
-    # X = X.astype({'antiguedad': 'float'}).dtypes
-
+    encode_y = pre.Preprocess(targets2)
+    targets2 = encode_y.encode_target()
+    # encode_y.count_feature_values()
 
     """FEATURE IMPORTANCE"""
-    # run_eda.feature_importance_rfc()
+    # feature_importance = pre.FeatureImportanceRfc(X2, targets2['savings_acct'])
+    # feature_importance.feature_importance()
 
     """CHI SQUARED FEATURE SELECTION"""
     # chi = pre.FsChi2(X, y)

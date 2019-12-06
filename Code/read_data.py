@@ -34,3 +34,7 @@ class SaveDf:
     def save_dataframe(self):
         data_df = pd.DataFrame(self.df_files)
         return data_df.to_pickle(self.dir_base+'/' + self.df_name + '.pickle')
+
+
+
+

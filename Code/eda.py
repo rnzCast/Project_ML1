@@ -34,29 +34,16 @@ class Eda:
         )
         return plt.show()
 
-    def feature_importance_rfc(self):
-        X = self.df.iloc[:, 0:18]
-        y = self.df.iloc[:, 18:19]
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=0)
-        clf = RandomForestClassifier(n_estimators=10000, random_state=0, n_jobs=-1)
-        clf.fit(X_train, y_train)
-        feat_labels = X.columns
-        for feature in zip(feat_labels, clf.feature_importances_):
-            print(feature)
-
-
     def check_null_values(self):
         return print(((self.df.isnull().sum() / len(self.df)).sort_values())*100, '\n')
 
     def check_na(self):
         return print(self.df.isna().sum(), '\n')
 
-
     def check_features(self):
         for j in range(self.df.shape[1]):
             print(self.df.columns[j] + ':')
             print(self.df.iloc[:, j].value_counts(), end='\n\n')
-
 
     def check_target(self):
         print('Unique values and number for target')
