@@ -145,10 +145,26 @@ def main():
 
 
     """CLASSIFIER DICTIONARY"""
-    # clfs = models.classifer_dict()
+    clfs = models.classifer_dict()
 
     """PIPELINE DICTIONARY"""
-    # pipe_clfs = models.pipeline_dict()
+    pipe_clfs = models.pipeline_dict(clfs)
+
+    """PARAMETER GRIDS"""
+    param_grids = models.create_param_grids()
+
+    """HYPERPARAMETER TUNING"""
+    hyper_tuning = models.HyperparameterTuning(pipe_clfs, param_grids, X, y)
+    best_score_param_estimators = hyper_tuning.best_parameters_gs()
+
+    """MODEL SELECTION"""
+    models_params = models.ModelSelection(best_score_param_estimators)
+    best_score_param_estimators = models_params.select_best()
+
+    """PRINT BEST PARAMETERS FOR ALL MODELS"""
+    get_params = models.ModelSelection(best_score_param_estimators)
+    get_params.print_models_params()
+
 
 
 main()

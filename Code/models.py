@@ -39,11 +39,13 @@ def create_param_grids():
         C_range = [10 ** i for i in range(-4, 5)]
         param_grid_log_reg = [{'clf__multi_class': ['ovr'],
                         'clf__solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
-                        'clf__C': C_range},
+                        'clf__C': C_range,
+                        'random_state': 100},
 
                         {'clf__multi_class': ['multinomial'],
                         'clf__solver': ['newton-cg', 'lbfgs', 'sag', 'saga'],
-                        'clf__C': C_range}]
+                        'clf__C': C_range,
+                         'random_state': 100}]
 
         param_grids['lr'] = param_grid_log_reg
 
@@ -83,20 +85,22 @@ def create_param_grids():
 
 
 """HYPERPARAMETER TUNING"""
-class Hyperparameter_Tuning:
-        def __init__(self, pipe_clfs, param_grids):
+class HyperparameterTuning:
+        def __init__(self, pipe_clfs, param_grids, X, y):
                 self.pipe_clfs = pipe_clfs
                 self.param_grids = param_grids
+                self.X = X
+                self.y = y
 
         def best_parameters_gs(self):
                 # The list of [best_score_, best_params_, best_estimator_]
                 best_score_param_estimators = []
 
                 # For each classifier
-                for name in pipe_clfs.keys():
+                for name in self.pipe_clfs.keys():
                         # GridSearchCV
-                        gs = GridSearchCV(estimator=pipe_clfs[name],
-                                          param_grid=param_grids[name],
+                        gs = GridSearchCV(estimator=self.pipe_clfs[name],
+                                          param_grid=self.param_grids[name],
                                           scoring='accuracy',
                                           n_jobs=1,
                                           iid=False,
@@ -105,7 +109,7 @@ class Hyperparameter_Tuning:
                                                              random_state=0))
 
                         # Fit the pipeline
-                        gs = gs.fit(X, y)
+                        gs = gs.fit(self.X, self.y)
 
                         # Update best_score_param_estimators
                         best_score_param_estimators.append([gs.best_score_, gs.best_params_, gs.best_estimator_])
@@ -114,16 +118,24 @@ class Hyperparameter_Tuning:
 
 
 
-class Model_Selection:
+class ModelSelection:
         def __init__(self, best_score_param_estimators):
                 self.best_score_param_estimators = best_score_param_estimators
 
 
         def select_best(self):
                 # Sort best_score_param_estimators in descending order of the best_score_
-                best_score_param_estimators = sorted(self.best_score_param_estimators, key=lambda x: x[0], reverse=True)
+                self.best_score_param_estimators = sorted(self.best_score_param_estimators, key=lambda x: x[0], reverse=True)
 
-                return best_score_param_estimators
+                return self.best_score_param_estimators
+
+        def print_models_params(self):
+            # For each [best_score_, best_params_, best_estimator_]
+            for best_score_param_estimator in self.best_score_param_estimators:
+                # Print out [best_score_, best_params_, best_estimator_], where best_estimator_ is a pipeline
+                # Since we only print out the type of classifier of the pipeline
+                print([best_score_param_estimator[0], best_score_param_estimator[1],
+                       type(best_score_param_estimator[2].named_steps['clf'])], end='\n\n')
 
 
 
