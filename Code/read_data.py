@@ -1,13 +1,16 @@
 import pandas as pd
 
 
+##########################################
+# READ DATA
+##########################################
 class ReadData:
     def __init__(self, path, file_name):
         self.path = path
         self.file_name = file_name
     """Read the csv file for train"""
 
-    def slit_csv(self):
+    def split_csv(self):
         df = pd.read_csv(self.path + self.file_name, header=0, low_memory=False)
         df_features = df.iloc[:, 0:24]
         df_targets = df.iloc[:, 24:]
@@ -18,7 +21,10 @@ class ReadData:
 
         return df
 
-"""Class for save a DF as pickle file in data"""
+
+##########################################
+# SAVE DATAFRAME
+##########################################
 class SaveDf:
     def __init__(self, dir_base, df_files, df_name):
         self.dir_base = dir_base

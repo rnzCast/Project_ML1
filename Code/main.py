@@ -18,137 +18,140 @@ import numpy as np
 from tabulate import tabulate
 
 
-
 dir_base = (str(Path(__file__).parents[1]) + '/Data/')
-print(dir_base)
 
 
 def main():
 
-    """Read the train file"""
+    ##########################################
+    # READ DATA
+    ##########################################
+
+    # """Read the train file"""
     # file_name = 'train.csv'
     # read_data = rd.ReadData(dir_base, file_name)
     # df = read_data.read_csv()
-    # df_features, df_targets = read_data.slit_csv()
+    # X, targets = read_data.split_csv()
     #
-    """Temporary gets Df with 200,000 rows"""
-    # temp_features = df_features.iloc[0:200000]
-    # temp_target = df_targets.iloc[0:200000]
-    # temp_df = df.iloc[0:200000]
-    #
-    #
-    """SAVE A TEMPORARY DF FILE"""
-    # name = 'temp_df'
-    # save_df = rd.SaveDf(dir_base, temp_df, name)
+    # """Temporary gets Df with 200,000 rows"""
+    # X = X.iloc[0:200000]
+    # targets = targets.iloc[0:200000]
+    # df = df.iloc[0:200000]
+
+    ##########################################
+    # SAVE DATA
+    ##########################################
+
+    # """SAVE A TEMPORARY DF FILE"""
+    # name = 'df'
+    # save_df = rd.SaveDf(dir_base, df, name)
     # save_df.save_dataframe()
     #
-    # name = 'temp_features'
-    # save_df = rd.SaveDf(dir_base, temp_features, name)
+    # name = 'X'
+    # save_df = rd.SaveDf(dir_base, X, name)
     # save_df.save_dataframe()
     #
-    # name = 'temp_targets'
-    # save_df = rd.SaveDf(dir_base, temp_target, name)
+    # name = 'targets'
+    # save_df = rd.SaveDf(dir_base, targets, name)
     # save_df.save_dataframe()
 
+    ##########################################
+    # READ TEMPORARY DATAFRAMES
+    ##########################################
+    # X = pd.read_pickle(dir_base+"/X.pickle")
+    # targets = pd.read_pickle(dir_base+"/targets.pickle")
 
-    """READ THE TEMPORARY DF"""
-    df_temp = pd.read_pickle(dir_base+"/temp_df.pickle")
-    # df_features = pd.read_pickle(dir_base+"/temp_features.pickle")
-    # df_targets = pd.read_pickle(dir_base+"/temp_targets.pickle")
+    # print(tabulate(X.head(20), headers=X.columns, tablefmt="grid"))
+    # print(tabulate(targets.head(20), headers=targets.columns, tablefmt="grid"))
 
-    # print(tabulate(df_features.head(20), headers=df_features.columns, tablefmt="grid"))
-    # print(tabulate(df_targets.head(20), headers=df_targets.columns, tablefmt="grid"))
-    # prep = pre.Preprocess(df_temp)
-    # df_temp = prep.drop_columns()
+    ##########################################
+    # EDA
+    ##########################################
 
+    # """NULL VALUES IN EACH FEATURE"""
+    # print("CHECK NULL VALUES - Percentages\n")
+    # eda_process = eda.Eda(X)
+    # eda_process.check_null_values()
+    #
+    # """CHECK NAN"""
+    # print('CHECK NAN VALUES: \n')
+    # eda_process.check_na()
+    #
+    # """CATEGORICAL CHECKER"""
+    # cat_check = eda.CategoricalChecker(X, 'object')
+    # cat_check.categorical_feature_checker()
+    # print()
 
-    """CORRELATION MAP (HEAT)"""
-    # target = df_temp.iloc[:, 0:19]
-    # print(target['tipodom'].value_counts())
-    # run_eda = eda.Eda(target)
-    # run_eda.cor_map()
+    ##########################################
+    # PREPROCESSING - CLEANING
+    ##########################################
+
+    # """DROP IRRELEVANT COLUMNS"""
+    # preprocess = pre.Preprocess(X)
+    # X = preprocess.drop_columns()
+    # print("DROP IRRELEVANT COLUMNS TABLE \n")
+    # print(tabulate(X.head(20), headers=X.columns, tablefmt="grid"), '\n')
+    #
+    # """RENAME TARGETS"""
+    # preprocess = pre.Preprocess(targets)
+    # targets = preprocess.rename_targets()
+    # print("RENAMED TARGETS \n")
+    # print(tabulate(targets.head(20), headers=targets.columns, tablefmt="grid"), '\n')
+
+    ##########################################
+    # SAVE DATA CLEAN
+    ##########################################
+
+    # """SAVE A TEMPORARY DF FILE"""
+    # name = 'X2'
+    # save_df = rd.SaveDf(dir_base, X, name)
+    # save_df.save_dataframe()
+    #
+    # name = 'targets2'
+    # save_df = rd.SaveDf(dir_base, targets, name)
+    # save_df.save_dataframe()
+
+    ##########################################
+    # READ CLEAN DATA
+    ##########################################
+    X2 = pd.read_pickle(dir_base+"/X2.pickle")
+    targets2 = pd.read_pickle(dir_base+"/targets2.pickle")
+    print(tabulate(X2.head(20), headers=X2.columns, tablefmt="grid"), '\n')
+    print(tabulate(targets2.head(20), headers=targets2.columns, tablefmt="grid"), '\n')
+
+    ##########################################
+    # PREPROCESSING - FEATURE SELECTION
+    ##########################################
+
+    """ENCODE CATEGORICAL FEATURES"""
+    # encode_x = pre.Preprocess(X2)
+    # X2 = encode_x.encode_features()
+    # print(tabulate(X2.head(20), headers=X2.columns, tablefmt="grid"))
+
+    """ENCODE TARGET"""
+    # encode_y = pre.Preprocess(targets2)
+    # targets2 = encode_y.encode_target()
+    # print(tabulate(targets2.head(20), headers=targets2.columns, tablefmt="grid"))
+
+    # pd.DataFrame(data=targets2).value_counts()
+
+    # """CHANGE DTYPES"""
+    # X = X.astype({'age': 'float'}).dtypes
+    # X = X.astype({'antiguedad': 'float'}).dtypes
 
 
     """FEATURE IMPORTANCE"""
     # run_eda.feature_importance_rfc()
 
-    """CATEGORICAL CHECKER"""
-    # cat_check = eda.CategoricalChecker(df_temp, 'ind_ahor_fin_ult1', 'object')
-    # cat_check.categorical_feature_checker()
-    # print()
-
-
-    """NULL VALUES IN EACH FEATURE"""
-    # print("CHECK NULL VALUES - %")
-    # null = eda.Eda(df_temp)
-    # null.check_null_values()
-
-
-    """CHECK NAN"""
-    # print('CHECK NAN')
-    # nan = eda.Eda(df_temp)
-    # nan.check_na()
-
-
-    """DROP IRRELEVANT COLUMNS"""
-    preprocess = pre.Preprocess(df_temp)
-    df_temp = preprocess.drop_columns()
-    # print(tabulate(df_temp.head(20), headers=df_temp.columns, tablefmt="grid"))
-
-
-    """RENAME COLUMNS"""
-    preprocess = pre.Preprocess(df_temp)
-    df_temp = preprocess.rename_cols()
-
-
-    """DEFINE TARGET"""
-    target = 'curr_acct'
-
-
-    """DEFINE X & Y"""
-    X = df_temp.iloc[:, :18]
-    y = df_temp[target]
-
-
-    """CHECK CATEGORICAL FEATURES"""
-    # feature_check = eda.Eda(X)
-    # feature_check.check_features()
-
-    """CHECK CATEGORICAL TARGET"""
-    target_check = eda.Eda(y)
-    target_check.check_target()
-
-
-    """CHANGE DTYPES"""
-    # X = X.astype({'age': 'float'}).dtypes
-    # X = X.astype({'antiguedad': 'float'}).dtypes
-
-
     """CHI SQUARED FEATURE SELECTION"""
-    chi = pre.FS_chi2(X, y)
-    X_kbest = chi.chi2()
-    print('Original feature number:', X.shape[1])
-    print('Reduced feature number:', X_kbest.shape[1])
-
-
-
-
-    """ENCODE CATEGORICAL FEATURES"""
-    # encode = pre.Preprocess(X)
-    # X = encode.encode_features()
-    # print(tabulate(df_temp.head(20), headers=df_temp.columns, tablefmt="grid"))
-    # print(X.dtypes)
-
-
-    """ENCODE TARGET"""
-    # encode = pre.Preprocess(y)
-    # y = encode.encode_target()
-    # pd.DataFrame(data=y, columns=[target])[target].value_counts()
+    # chi = pre.FsChi2(X, y)
+    # X_kbest = chi.chi2()
+    # print('Original feature number:', X.shape[1])
+    # print('Reduced feature number:', X_kbest.shape[1])
 
 
     """CLASSIFIER DICTIONARY"""
     # clfs = models.classifer_dict()
-
 
     """PIPELINE DICTIONARY"""
     # pipe_clfs = models.pipeline_dict()

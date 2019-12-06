@@ -17,7 +17,7 @@ class Eda:
         plt.figure(figsize=(24, 24))
         cor = self.df.corr()
         sns.heatmap(cor, annot=True, cmap=plt.cm.Reds)
-        return plt.show()
+        return plt
 
     def cor_map2(self):
         corr = self.df.corr()
@@ -34,7 +34,6 @@ class Eda:
         )
         return plt.show()
 
-
     def feature_importance_rfc(self):
         X = self.df.iloc[:, 0:18]
         y = self.df.iloc[:, 18:19]
@@ -47,11 +46,10 @@ class Eda:
 
 
     def check_null_values(self):
-        return print(((self.df.isnull().sum() / len(self.df)).sort_values())*100)
+        return print(((self.df.isnull().sum() / len(self.df)).sort_values())*100, '\n')
 
     def check_na(self):
-        return print(self.df.isna().sum())
-
+        return print(self.df.isna().sum(), '\n')
 
 
     def check_features(self):
@@ -65,12 +63,10 @@ class Eda:
         return print(self.df.value_counts())
 
 
-
 class CategoricalChecker:
 
-    def __init__(self, df, target, dtype):
+    def __init__(self, df, dtype):
         self.df = df
-        self.target = target
         self.dtype = dtype
 
     def categorical_feature_checker(self):
@@ -78,7 +74,6 @@ class CategoricalChecker:
         Parameters
         ----------
         df : dataframe
-        target : the target
         dtype : the type of the feature
 
         Returns
@@ -88,9 +83,9 @@ class CategoricalChecker:
 
         feature_number = [[feature, self.df[feature].nunique()]
                           for feature in self.df.columns
-                          if feature != self.target and self.df[feature].dtype.name == self.dtype]
+                          if self.df[feature].dtype.name == self.dtype]
 
-        print('%-30s' % 'Categorical feature', 'Number of unique value')
+        print('%-30s' % 'CATEGORICAL FEATURES', 'NUMBER OF UNIQUE VALUES')
         for feature, number in sorted(feature_number, key=lambda x: x[1]):
             print('%-30s' % feature, number)
 
