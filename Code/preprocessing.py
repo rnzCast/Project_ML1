@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
-
+from sklearn.base import TransformerMixin
 
 class Preprocess:
 
@@ -124,3 +124,33 @@ class FsChi2:
         chi2_features = SelectKBest(chi2, k=2)
         X_kbest_features = chi2_features.fit_transform(self.X, self.y)
         return X_kbest_features
+
+
+## Imputation
+
+class DataFrameImputer:
+
+    def __init__(self, df):
+        self.df = df
+
+        """Impute missing values.
+
+        Columns of dtype object are imputed with the most frequent value 
+        in column.
+
+        Columns of other types are imputed with mean of column.
+
+        """
+
+    def fit(self):
+        self.fill = pd.Series([self.df[c].value_counts().index[0]
+                               if self.df[c].dtype == np.dtype('O') else self.df[c].mean() for c in self.df],
+                              index=self.df.columns)
+
+        return self.df
+
+    def transform(self):
+        self.df = self.df.fillna(self.fill)
+        return self.df
+
+
