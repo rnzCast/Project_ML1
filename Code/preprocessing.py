@@ -1,12 +1,16 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import pandas as pd
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.feature_selection import SelectFromModel
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
 
 
 class Preprocess:
@@ -39,3 +43,29 @@ class Preprocess:
 
         return df
 
+
+
+    def encode_features(self):
+        df = pd.get_dummies(self.df)
+        return df
+
+    def encode_target(self):
+        le = LabelEncoder()
+        y = le.fit_transform(self.df)
+
+        return y
+
+
+
+class FS_chi2:
+
+    def __init__(self, X, y):
+        self.X = X
+        self.y = y
+
+    def chi2(self):
+
+        # Two features with highest chi-squared statistics are selected
+        chi2_features = SelectKBest(chi2, k=2)
+        X_kbest_features = chi2_features.fit_transform(self.X, self.y)
+        return X_kbest_features

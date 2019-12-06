@@ -49,6 +49,22 @@ class Eda:
     def check_null_values(self):
         return print(((self.df.isnull().sum() / len(self.df)).sort_values())*100)
 
+    def check_na(self):
+        return print(self.df.isna().sum())
+
+
+
+    def check_features(self):
+        for j in range(self.df.shape[1]):
+            print(self.df.columns[j] + ':')
+            print(self.df.iloc[:, j].value_counts(), end='\n\n')
+
+
+    def check_target(self):
+        print('Unique values and number for target')
+        return print(self.df.value_counts())
+
+
 
 class CategoricalChecker:
 
@@ -79,5 +95,8 @@ class CategoricalChecker:
             print('%-30s' % feature, number)
 
         return feature_number
+
+
+
 
 
