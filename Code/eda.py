@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import datasets
@@ -13,11 +14,12 @@ class Eda:
     def __init__(self, df):
         self.df = df
 
+
     def cor_map(self):
         plt.figure(figsize=(24, 24))
         cor = self.df.corr()
         sns.heatmap(cor, annot=True, cmap=plt.cm.Reds)
-        return plt
+        return plt.show()
 
     def cor_map2(self):
         corr = self.df.corr()

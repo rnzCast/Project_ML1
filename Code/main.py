@@ -24,7 +24,7 @@ def main():
     """Read the train file"""
     # read_data = rd.ReadData(file_name='train.csv')
     # df = read_data.read_csv()
-    # df = df.sample(n=10000, random_state=1)
+    # df = df.sample(n=500000, random_state=1)
 
     """ Split features and targets in different pickle files"""
     # split_df = rd.SplitData(df)
@@ -35,7 +35,7 @@ def main():
     ###########################################
 
     # """SAVE A TEMPORARY DF FILE"""
-    # save_df = rd.SaveDf(df, name='df)
+    # save_df = rd.SaveDf(df, name='df')
     # save_df.save_df()
 
     # save_df = rd.SaveDf(X, name='X_complete')
@@ -47,14 +47,14 @@ def main():
     ##########################################
     # READ TEMPORARY DATAFRAMES
     ##########################################
-    X = rd.ReadData(file_name='X_complete.pickle').read_pickle()
-    targets = rd.ReadData(file_name='targets_complete.pickle').read_pickle()
+    X = rd.ReadData(file_name='X_500k.pickle').read_pickle()
+    targets = rd.ReadData(file_name='targets_500k.pickle').read_pickle()
 
     # print(tabulate(X.head(20), headers=X.columns, tablefmt="grid"))
     # print(tabulate(targets.head(20), headers=targets.columns, tablefmt="grid"))
 
     ##########################################
-    # EDA
+    # EDA:  NULL VALUES - NAN - CATEGORICAL CHECK
     ##########################################
 
     """NULL VALUES IN EACH FEATURE"""
@@ -70,71 +70,64 @@ def main():
     # cat_check = eda.CategoricalChecker(X, 'object')
     # cat_check.categorical_feature_checker()
     # print()
-    #
+
     ##########################################
     # PREPROCESSING - CLEANING
     ##########################################
-
     """DROP IRRELEVANT COLUMNS"""
-    preprocess = pre.Preprocess(X)
-    X = preprocess.drop_columns()
-    # print("DROP IRRELEVANT COLUMNS TABLE \n")
+    # X = pre.Preprocess(X).drop_columns()
     # print(tabulate(X.head(20), headers=X.columns, tablefmt="grid"), '\n')
-    #
+
     """RENAME TARGETS"""
-    preprocess = pre.Preprocess(targets)
-    targets = preprocess.rename_targets()
-    # print("RENAMED TARGETS \n")
+    # targets = pre.Preprocess(targets).rename_targets()
     # print(tabulate(targets.head(20), headers=targets.columns, tablefmt="grid"), '\n')
-    #
+
     ##########################################
     # SAVE DATA CLEAN
     ##########################################
-
     """SAVE A TEMPORARY DF FILE"""
-    save_df = rd.SaveDf(X, name='X_complete2')
-    save_df.save_df()
-    #
-    save_df = rd.SaveDf(targets, name='targets_complete2')
-    save_df.save_df()
-    #
+    # rd.SaveDf(X, name='X_500K_clean').save_df()
+    # rd.SaveDf(targets, name='targets_500K_clean').save_df()
+
     ##########################################
     # READ CLEAN DATA
     ##########################################
-    X2 = rd.ReadData(file_name='X_complete2.pickle').read_pickle()
-    targets2 = rd.ReadData(file_name='targets_complete2.pickle').read_pickle()
-    # print(tabulate(targets2.head(1000), headers=targets2.columns, tablefmt="grid"), '\n')
+    X_500 = rd.ReadData(file_name='X_500K_clean.pickle').read_pickle()
+    targets_500 = rd.ReadData(file_name='targets_500K_clean.pickle').read_pickle()
 
     ##########################################
     # PREPROCESSING - IMPUTATION
     ##########################################
 
     """Check NA Values"""
-    impute = pre.DataFrameImputer(X2)
-    X2 = impute.fit()
-    X2 = impute.transform()
+    impute = pre.DataFrameImputer(X_500)
+    X_500 = impute.fit()
+    X_500 = impute.transform()
 
-    # print('Check missing values:\n')
-    # print(X2.isna().sum(), '\n')
+    print('Check missing values:\n')
+    print(X_500.isna().sum(), '\n')
 
     ##########################################
     # PREPROCESSING - FEATURE SELECTION
     ##########################################
 
     """ENCODE CATEGORICAL FEATURES"""
-    X2 = pre.Preprocess(X2).encode_features()
-    # pre.Preprocess(X2).count_feature_values()
-
+    X_500 = pre.Preprocess(X_500).encode_features()
+    # pre.Preprocess(X_500).count_feature_values()
     # print(tabulate(X2.head(20), headers=X2.columns, tablefmt="grid"), '\n')
 
     """ENCODE TARGET"""
-    targets2 = pre.Preprocess(targets2).encode_target()
+    targets_500 = pre.Preprocess(targets_500).encode_target()
     # pre.Preprocess(targets2).count_feature_values()
 
     """FEATURE IMPORTANCE"""
-    # feature_importance = pre.FeatureImportanceRfc(X2, targets2['curr_acct'])
+    # feature_importance = pre.FeatureImportanceRfc(X_500, targets_500['curr_acct'])
     # pipe_ft = feature_importance.train_random_forest_classifier()
     # feature_importance.plot_random_forest_classifier(pipe_ft)
+
+    """CORRELATION MAP"""
+    eda.Eda(pd.concat([X_500, targets_500['curr_acct']], axis=1)).cor_map()
+
 
     """CHI SQUARED FEATURE SELECTION"""
     # chi_squared = pre.Chi2(X2, targets2['curr_acct'])
@@ -148,23 +141,42 @@ def main():
     # preprocess = pre.Preprocess(X2)
     # X2 = preprocess.drop_col_feature_selection()
 
+
+    ##########################################
+    # SAVE DATA CLEAN
+    ##########################################
+    """SAVE A TEMPORARY DF FILE"""
+    # rd.SaveDf(X, name='X_500K_clean').save_df()
+    # rd.SaveDf(targets, name='targets_500K_clean').save_df()
+
+    ##########################################
+    # READ CLEAN DATA
+    ##########################################
+    # X_500 = rd.ReadData(file_name='X_500K_clean.pickle').read_pickle()
+    # targets_500 = rd.ReadData(file_name='targets_500K_clean.pickle').read_pickle()
+
+
+
+
+
+
     ##########################################
     # TRAIN TEST SPLIT
     ##########################################
     # """DEFINE y"""
-    y = targets2['curr_acct']
-    print(y.value_counts())
+    # y = targets2['curr_acct']
+    # print(y.value_counts())
 
-    X_train, X_test, y_train, y_test = train_test_split(X2, y, test_size=0.3, random_state=0)
+    # X_train, X_test, y_train, y_test = train_test_split(X2, y, test_size=0.3, random_state=0)
 
     ##########################################
     # OVERSAMPLING
     ##########################################
-    print(y.value_counts())
+    # print(y.value_counts())
     #
-    oversampler = pre.Oversampling(X_train, y_train)
-    X_train, y_train = oversampler.oversampler()
-    print(pd.DataFrame(data=y_train, columns=['curr_acct'])['curr_acct'].value_counts())
+    # oversampler = pre.Oversampling(X_train, y_train)
+    # X_train, y_train = oversampler.oversampler()
+    # print(pd.DataFrame(data=y_train, columns=['curr_acct'])['curr_acct'].value_counts())
 
 
     ##########################################
@@ -172,19 +184,19 @@ def main():
     ##########################################
 
     """CLASSIFIER DICTIONARY"""
-    clfs = models.classifer_dict()
+    # clfs = models.classifer_dict()
 
 
     """PIPELINE DICTIONARY"""
-    pipe_clfs = models.pipeline_dict(clfs)
+    # pipe_clfs = models.pipeline_dict(clfs)
 
     """PARAMETER GRIDS"""
-    param_grids = models.create_param_grids()
+    # param_grids = models.create_param_grids()
 
     """HYPERPARAMETER TUNING ONE MODEL"""
     modelname = 'lr'
-    hyper_tuning_one = models.HyperparameterOneModel(pipe_clfs,param_grids,X_train, y_train)
-    best_score_param_estimators = hyper_tuning_one.tune_one_model()
+    # hyper_tuning_one = models.HyperparameterOneModel(pipe_clfs,param_grids,X_train, y_train)
+    # best_score_param_estimators = hyper_tuning_one.tune_one_model()
 
     """HYPERPARAMETER TUNING ALL MODELS"""
     # hyper_tuning = models.HyperparameterTuning(pipe_clfs, param_grids, X_train, y_train)
@@ -195,12 +207,12 @@ def main():
     # # HYPERPARAMETER TUNING
     # ##########################################
     """MODEL SELECTION"""
-    models_params = models.ModelSelection(best_score_param_estimators)
-    best_score_param_estimators = models_params.select_best()
+    # models_params = models.ModelSelection(best_score_param_estimators)
+    # best_score_param_estimators = models_params.select_best()
 
     """PRINT BEST PARAMETERS FOR ALL MODELS"""
-    get_params = models.ModelSelection(best_score_param_estimators)
-    get_params.print_models_params()
+    # get_params = models.ModelSelection(best_score_param_estimators)
+    # get_params.print_models_params()
 
     """Heatmap"""
 
