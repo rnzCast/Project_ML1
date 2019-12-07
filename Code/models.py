@@ -9,7 +9,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import StratifiedKFold
 
 
-
 """CREATE DICTIONARY OF CLASSIFIERS"""
 def classifer_dict():
 
@@ -20,6 +19,7 @@ def classifer_dict():
                 'xgb': XGBClassifier(seed=0)}
 
         return clfs
+
 
 """CREATE DICTIONARY OF PIPELINE"""
 def pipeline_dict(clfs):
@@ -39,13 +39,15 @@ def create_param_grids():
         C_range = [10 ** i for i in range(-4, 5)]
         param_grid_log_reg = [{'clf__multi_class': ['ovr'],
                         'clf__solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
-                        'clf__C': C_range,
-                        'random_state': 100},
+                        'clf__C': C_range
+                        # 'random_state': 100
+                               },
 
                         {'clf__multi_class': ['multinomial'],
                         'clf__solver': ['newton-cg', 'lbfgs', 'sag', 'saga'],
-                        'clf__C': C_range,
-                         'random_state': 100}]
+                        'clf__C': C_range
+                         # 'random_state': 100
+                         }]
 
         param_grids['lr'] = param_grid_log_reg
 
@@ -79,9 +81,7 @@ def create_param_grids():
 
         param_grids['xgb'] = param_grid_xgb
 
-
         return param_grids
-
 
 
 """HYPERPARAMETER TUNING"""
@@ -98,7 +98,6 @@ class HyperparameterTuning:
 
                 # For each classifier
                 for name in self.pipe_clfs.keys():
-                        # GridSearchCV
                         gs = GridSearchCV(estimator=self.pipe_clfs[name],
                                           param_grid=self.param_grids[name],
                                           scoring='accuracy',
@@ -117,25 +116,22 @@ class HyperparameterTuning:
                         return best_score_param_estimators
 
 
-
 class ModelSelection:
-        def __init__(self, best_score_param_estimators):
-                self.best_score_param_estimators = best_score_param_estimators
+    def __init__(self, best_score_param_estimators):
+        self.best_score_param_estimators = best_score_param_estimators
 
+    def select_best(self):
+        # Sort best_score_param_estimators in descending order of the best_score_
+        self.best_score_param_estimators = sorted(self.best_score_param_estimators, key=lambda x: x[0], reverse=True)
+        return self.best_score_param_estimators
 
-        def select_best(self):
-                # Sort best_score_param_estimators in descending order of the best_score_
-                self.best_score_param_estimators = sorted(self.best_score_param_estimators, key=lambda x: x[0], reverse=True)
-
-                return self.best_score_param_estimators
-
-        def print_models_params(self):
-            # For each [best_score_, best_params_, best_estimator_]
-            for best_score_param_estimator in self.best_score_param_estimators:
-                # Print out [best_score_, best_params_, best_estimator_], where best_estimator_ is a pipeline
-                # Since we only print out the type of classifier of the pipeline
-                print([best_score_param_estimator[0], best_score_param_estimator[1],
-                       type(best_score_param_estimator[2].named_steps['clf'])], end='\n\n')
+    def print_models_params(self):
+        # For each [best_score_, best_params_, best_estimator_]
+        for best_score_param_estimator in self.best_score_param_estimators:
+            # Print out [best_score_, best_params_, best_estimator_], where best_estimator_ is a pipeline
+            # Since we only print out the type of classifier of the pipeline
+            print([best_score_param_estimator[0], best_score_param_estimator[1],
+                   type(best_score_param_estimator[2].named_steps['clf'])], end='\n\n')
 
 
 

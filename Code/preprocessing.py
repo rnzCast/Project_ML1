@@ -1,8 +1,5 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 import pandas as pd
-
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
@@ -12,6 +9,10 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.base import TransformerMixin
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+from imblearn.over_sampling import RandomOverSampler
 
 class Preprocess:
 
@@ -70,9 +71,63 @@ class Preprocess:
         """
          Counts how many values are in one feature
         """
+        print('FEATURE COUNTER: \n')
         for col in self.df:
-             print('FEATURE COUNTER: \n')
              print(self.df[col].value_counts(), '\n')
+
+    def drop_col_feature_selection(self):
+        print(self.df.shape)
+
+        self.df = self.df.drop(columns=[
+            'pais_residencia_AL',
+            'tipodom',
+            'canal_entrada_KGN',
+            'age_106',
+            'canal_entrada_KAD',
+            'pais_residencia_AD',
+            'pais_residencia_AE',
+            'pais_residencia_SE',
+            'pais_residencia_NI',
+            'pais_residencia_EE',
+            'pais_residencia_BG',
+            'pais_residencia_SA',
+            'pais_residencia_CA',
+            'pais_residencia_GT',
+            'pais_residencia_EC',
+            'pais_residencia_PR',
+            'pais_residencia_CR',
+            'pais_residencia_IE',
+            # second run of RFC
+            'pais_residencia_IL',
+            'pais_residencia_IN',
+            'pais_residencia_SV',
+            'canal_entrada_K00',
+            'pais_residencia_PL',
+            'pais_residencia_SN',
+            'pais_residencia_MR',
+            'pais_residencia_MZ',
+            'canal_entrada_KGC',
+            'pais_residencia_TW',
+            # third run of RFC
+            'pais_residencia_BE',
+            'pais_residencia_CZ',
+            'pais_residencia_PY',
+            'pais_residencia_GA',
+            'canal_entrada_KFV',
+            'pais_residencia_HN',
+            # fourth run
+            'pais_residencia_AR',
+            'pais_residencia_ET',
+            'pais_residencia_GR',
+            'pais_residencia_RU',
+            'pais_residencia_UA',
+            'canal_entrada_KBG',
+            # fifth run
+            'pais_residencia_DO'
+        ])
+
+        print(self.df.shape)
+        return self.df
 
 
 class FeatureImportanceRfc:
@@ -89,57 +144,53 @@ class FeatureImportanceRfc:
         for feature in zip(feat_labels, clf.feature_importances_):
             print(feature)
 
-# class FeatureImportanceRfc:
-#
-#     def __init__(self, X, y):
-#         self.X = X
-#         self.y = y
-#
-#     def feature_importance(self):
-#         rnd_clf = RandomForestClassifier(n_estimators=500, n_jobs=-1, random_state=42)
-#         rnd_clf.fit(self.X, self.y)
-#         print(rnd_clf.feature_importances_)
-        # for name, importance in zip(self.X, rnd_clf.feature_importances_):
-        #     print(name, "=", importance)
+    def train_random_forest_classifier(self):
+        pipe_rf = Pipeline([('StandardScaler', StandardScaler()),
+                            ('RandomForestClassifier', RandomForestClassifier())])
+        pipe_rf = pipe_rf.fit(self.X, self.y)
+        return pipe_rf
 
-    # def print_feature_importance(self):
-    # features = iris['feature_names']
-    # importances = rnd_clf.feature_importances_
-    # indices = np.argsort(importances)
-    #
-    # plt.title('Feature Importances')
-    # plt.barh(range(len(indices)), importances[indices], color='b', align='center')
-    # plt.yticks(range(len(indices)), [features[i] for i in indices])
-    # plt.xlabel('Relative Importance')
-    # plt.show()
+    def plot_random_forest_classifier(self, pipe_rf):
+        # Convert the importances into one-dimensional 1darray with corresponding df column names as axis labels
+        f_importances = pd.Series(pipe_rf.named_steps['RandomForestClassifier'].feature_importances_,
+                                  self.X.columns)
 
-class FsChi2:
+        # Sort the array in descending order of the importances
+        f_importances = f_importances.sort_values(ascending=False)
+        print(f_importances)
+
+        # Draw the bar Plot from f_importances
+        f_importances.plot(x='Features', y='Importance', kind='bar', figsize=(64, 36), rot=45, fontsize=4)
+        # Show the plot
+        plt.tight_layout()
+        plt.show()
+
+
+class Chi2:
 
     def __init__(self, X, y):
         self.X = X
         self.y = y
 
     def chi2(self):
-        # Two features with highest chi-squared statistics are selected
-        chi2_features = SelectKBest(chi2, k=2)
-        X_kbest_features = chi2_features.fit_transform(self.X, self.y)
-        return X_kbest_features
+        chi_scores = chi2(self.X, self.y)
+        return chi_scores
 
+    def plot_chi2(self, chi_scores):
+        p_values = pd.Series(chi_scores[1], index=self.X.columns)
+        p_values.sort_values(ascending=False, inplace=True)
+        p_values.plot.bar()
+        return plt.show()
 
-## Imputation
 
 class DataFrameImputer:
 
     def __init__(self, df):
         self.df = df
-
         """Impute missing values.
-
         Columns of dtype object are imputed with the most frequent value 
         in column.
-
         Columns of other types are imputed with mean of column.
-
         """
 
     def fit(self):
@@ -154,3 +205,13 @@ class DataFrameImputer:
         return self.df
 
 
+class Oversampling:
+    def __init__(self, X, y):
+        self.X = X
+        self.y = y
+
+    def oversampler(self):
+        ros = RandomOverSampler(random_state=0)
+        self.X, self.y = ros.fit_sample(self.X, self.y)
+
+        return self.X, self.y

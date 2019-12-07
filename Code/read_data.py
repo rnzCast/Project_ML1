@@ -1,39 +1,40 @@
 import pandas as pd
+from pathlib import Path
 
 
-##########################################
-# READ DATA
-##########################################
 class ReadData:
-    def __init__(self, path, file_name):
-        self.path = path
+    def __init__(self, file_name):
         self.file_name = file_name
     """Read the csv file for train"""
 
-    def split_csv(self):
-        df = pd.read_csv(self.path + self.file_name, header=0, low_memory=False)
-        df_features = df.iloc[:, 0:24]
-        df_targets = df.iloc[:, 24:]
-        return df_features, df_targets
-
     def read_csv(self):
-        df = pd.read_csv(self.path + self.file_name, header=0, low_memory=False)
-
+        path = (str(Path(__file__).parents[1]) + '/Data/')
+        df = pd.read_csv(path + self.file_name, header=0, low_memory=False)
         return df
 
+    def read_pickle(self):
+        path = (str(Path(__file__).parents[1]) + '/Data/')
+        df = pd.read_pickle(path + self.file_name)
+        return df
 
-##########################################
-# SAVE DATAFRAME
-##########################################
+class SplitData:
+    def __init__(self, df):
+        self.df = df
+
+    def split_csv(self):
+        df_features = self.df.iloc[:, 0:24]
+        df_targets = self.df.iloc[:, 24:]
+        return df_features, df_targets
+
+
 class SaveDf:
-    def __init__(self, dir_base, df_files, df_name):
-        self.dir_base = dir_base
-        self.df_files = df_files
-        self.df_name = df_name
+    def __init__(self, df, name):
+        self.df = df
+        self.name = name
 
-    def save_dataframe(self):
-        data_df = pd.DataFrame(self.df_files)
-        return data_df.to_pickle(self.dir_base+'/' + self.df_name + '.pickle')
+    def save_df(self):
+        dir_base = (str(Path(__file__).parents[1]) + '/Data/')
+        return self.df.to_pickle(dir_base + self.name + '.pickle')
 
 
 
