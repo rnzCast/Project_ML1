@@ -128,8 +128,9 @@ class HyperparameterOneModel:
                 self.modelname = modelname
 
         def tune_one_model(self):
-                gs = GridSearchCV(estimator=self.pipe_clfs[name],
-                                  param_grid=self.param_grids[name],
+                best_score_param_estimators = []
+                gs = GridSearchCV(estimator=self.pipe_clfs[self.modelname],
+                                  param_grid=self.param_grids[self.modelname],
                                   scoring='accuracy',
                                   n_jobs=1,
                                   iid=False,
