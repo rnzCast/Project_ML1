@@ -149,16 +149,22 @@ def main():
     # X2 = preprocess.drop_col_feature_selection()
 
     ##########################################
-    # OVERSAMPLING
+    # TRAIN TEST SPLIT
     ##########################################
-
     # """DEFINE y"""
     y = targets2['curr_acct']
     print(y.value_counts())
+
+    X_train, X_test, y_train, y_test = train_test_split(X2, y, test_size=0.3, random_state=0)
+
+    ##########################################
+    # OVERSAMPLING
+    ##########################################
+    print(y.value_counts())
     #
-    oversampler = pre.Oversampling(X2, y)
-    X2, y = oversampler.oversampler()
-    print(pd.DataFrame(data=y, columns=['curr_acct'])['curr_acct'].value_counts())
+    oversampler = pre.Oversampling(X_train, y_train)
+    X_train, y_train = oversampler.oversampler()
+    print(pd.DataFrame(data=y_train, columns=['curr_acct'])['curr_acct'].value_counts())
 
 
     ##########################################
@@ -175,9 +181,14 @@ def main():
     """PARAMETER GRIDS"""
     param_grids = models.create_param_grids()
 
-    """HYPERPARAMETER TUNING"""
-    hyper_tuning = models.HyperparameterTuning(pipe_clfs, param_grids, X2, y)
-    best_score_param_estimators = hyper_tuning.best_parameters_gs()
+    """HYPERPARAMETER TUNING ONE MODEL"""
+    modelname = 'lr'
+    hyper_tuning_one = models.HyperparameterOneModel(pipe_clfs,param_grids,X_train, y_train)
+    best_score_param_estimators = hyper_tuning_one.tune_one_model()
+
+    """HYPERPARAMETER TUNING ALL MODELS"""
+    # hyper_tuning = models.HyperparameterTuning(pipe_clfs, param_grids, X_train, y_train)
+    # best_score_param_estimators = hyper_tuning.best_parameters_gs()
 
 
     # ##########################################

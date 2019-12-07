@@ -39,13 +39,15 @@ def create_param_grids():
         C_range = [10 ** i for i in range(-4, 5)]
         param_grid_log_reg = [{'clf__multi_class': ['ovr'],
                         'clf__solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
-                        'clf__C': C_range
+                        'clf__C': C_range,
+                        'max_iter': [1000]
                         # 'random_state': 100
                                },
 
                         {'clf__multi_class': ['multinomial'],
                         'clf__solver': ['newton-cg', 'lbfgs', 'sag', 'saga'],
-                        'clf__C': C_range
+                        'clf__C': C_range,
+                        'max_iter': [1000]
                          # 'random_state': 100
                          }]
 
@@ -114,6 +116,34 @@ class HyperparameterTuning:
                         best_score_param_estimators.append([gs.best_score_, gs.best_params_, gs.best_estimator_])
 
                         return best_score_param_estimators
+
+
+
+class HyperparameterOneModel:
+        def __init__(self, pipe_clfs, param_grids, X, y, modelname):
+                self.pipe_clfs = pipe_clfs
+                self.param_grids = param_grids
+                self.X = X
+                self.y = y
+                self.modelname = modelname
+
+        def tune_one_model(self):
+                gs = GridSearchCV(estimator=self.pipe_clfs[name],
+                                  param_grid=self.param_grids[name],
+                                  scoring='accuracy',
+                                  n_jobs=1,
+                                  iid=False,
+                                  cv=StratifiedKFold(n_splits=10,
+                                                     shuffle=True,
+                                                     random_state=0))
+
+                # Fit the pipeline
+                gs = gs.fit(self.X, self.y)
+
+                # Update best_score_param_estimators
+                best_score_param_estimators.append([gs.best_score_, gs.best_params_, gs.best_estimator_])
+
+                return best_score_param_estimators
 
 
 class ModelSelection:
