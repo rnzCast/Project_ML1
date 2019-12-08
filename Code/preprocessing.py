@@ -66,7 +66,7 @@ class Preprocess:
 
     def encode_target(self):
         le = LabelEncoder()
-        self.df = self.df.apply(le.fit_transform)
+        self.df = le.fit_transform(self.df)
         return self.df
 
     def count_feature_values(self):

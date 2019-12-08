@@ -107,7 +107,7 @@ class HyperparameterTuning:
                                           iid=False,
                                           cv=StratifiedKFold(n_splits=10,
                                                              shuffle=True,
-                                                             random_state=0
+                                                             # random_state=0
                                                              )
                                           )
 
@@ -138,7 +138,8 @@ class HyperparameterOneModel:
                                   iid=False,
                                   cv=StratifiedKFold(n_splits=10,
                                                      shuffle=True,
-                                                     random_state=0))
+                                                     # random_state=0
+                                                     ))
 
                 # Fit the pipeline
                 gs = gs.fit(self.X, self.y)

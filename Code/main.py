@@ -166,9 +166,6 @@ def main():
     # pre.Preprocess(X).count_feature_values()
     # print(tabulate(X.head(20), headers=X.columns, tablefmt="grid"), '\n')
 
-    """ENCODE TARGET"""
-    # y = pre.Preprocess(y).encode_target()
-    # pre.Preprocess(targets).count_feature_values()
 
     # X = pre.Preprocess(X).drop_col_feature_selection()
 
@@ -206,40 +203,44 @@ def main():
     # READ CLEAN DATA
     ##########################################
     X = rd.ReadData(file_name='X_cc_encoded.pickle').read_pickle()
-    y = rd.ReadData(file_name='targets_cc_encoded.pickle').read_pickle()
+    y = rd.ReadData(file_name='y_cc.pickle').read_pickle()
+    # print(type(y))
 
+    """ENCODE TARGET"""
+    y = pre.Preprocess(y).encode_target()
+    # pre.Preprocess(targets).count_feature_values()
 
     ##########################################
     # TRAIN TEST SPLIT
     ##########################################
-    # """DEFINE y"""
-    #
-    # print(y.value_counts())
+
+
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=0)
 
     ##########################################
     # OVERSAMPLING
     ##########################################
-    print(y_train.value_counts())
+    # print(y_train.value_counts())
 
     oversampler = pre.Oversampling(X_train, y_train)
     X_train, y_train = oversampler.oversampler()
-    print(pd.DataFrame(data=y_train, columns=['credit_card'])['credit_card'].value_counts())
+    # print(pd.DataFrame(data=y_train, columns=['credit_card'])['credit_card'].value_counts())
+    #
 
     ##########################################
     # HYPERPARAMETER TUNING
     ##########################################
 
     """CLASSIFIER DICTIONARY"""
-    clfs = models.classifer_dict()
+    # clfs = models.classifer_dict()
 
 
     """PIPELINE DICTIONARY"""
-    pipe_clfs = models.pipeline_dict(clfs)
+    # pipe_clfs = models.pipeline_dict(clfs)
 
     """PARAMETER GRIDS"""
-    param_grids = models.create_param_grids()
+    # param_grids = models.create_param_grids()
 
 
     """HYPERPARAMETER TUNING ALL MODELS"""
@@ -251,9 +252,9 @@ def main():
     ##########################################
 
     """HYPERPARAMETER TUNING ONE MODEL"""
-    modelname = 'lr'
-    hyper_tuning_one = models.HyperparameterOneModel(pipe_clfs, param_grids, X_train, y_train, modelname)
-    best_score_param_estimators = hyper_tuning_one.tune_one_model()
+    # modelname = 'lr'
+    # hyper_tuning_one = models.HyperparameterOneModel(pipe_clfs, param_grids, X_train, y_train, modelname)
+    # best_score_param_estimators = hyper_tuning_one.tune_one_model()
 
     # ##########################################
     # # HYPERPARAMETER TUNING
