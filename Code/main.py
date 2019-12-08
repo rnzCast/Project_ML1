@@ -213,19 +213,19 @@ def main():
     # TRAIN TEST SPLIT
     ##########################################
     # """DEFINE y"""
-    # y = targets2['curr_acct']
+    #
     # print(y.value_counts())
 
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=0)
 
     ##########################################
     # OVERSAMPLING
     ##########################################
-    # print(y_train.value_counts())
+    print(y_train.value_counts())
 
-    # oversampler = pre.Oversampling(X_train, y_train)
-    # X_train, y_train = oversampler.oversampler()
-    # print(pd.DataFrame(data=y_train, columns=['credit_card'])['credit_card'].value_counts())
+    oversampler = pre.Oversampling(X_train, y_train)
+    X_train, y_train = oversampler.oversampler()
+    print(pd.DataFrame(data=y_train, columns=['credit_card'])['credit_card'].value_counts())
 
     ##########################################
     # HYPERPARAMETER TUNING
@@ -241,26 +241,30 @@ def main():
     """PARAMETER GRIDS"""
     param_grids = models.create_param_grids()
 
-    # """HYPERPARAMETER TUNING ONE MODEL"""
-    # modelname = 'lr'
-    # hyper_tuning_one = models.HyperparameterOneModel(pipe_clfs,param_grids,X_train, y_train)
-    # best_score_param_estimators = hyper_tuning_one.tune_one_model()
 
     """HYPERPARAMETER TUNING ALL MODELS"""
-    hyper_tuning = models.HyperparameterTuning(pipe_clfs, param_grids, X, y)
-    best_score_param_estimators = hyper_tuning.best_parameters_gs()
+    # hyper_tuning = models.HyperparameterTuning(pipe_clfs, param_grids, X, y)
+    # best_score_param_estimators = hyper_tuning.best_parameters_gs()
+
+    ##########################################
+    # HYPERPARAMETER TUNING ONE MODEL
+    ##########################################
+
+    """HYPERPARAMETER TUNING ONE MODEL"""
+    modelname = 'lr'
+    hyper_tuning_one = models.HyperparameterOneModel(pipe_clfs, param_grids, X_train, y_train, modelname)
+    best_score_param_estimators = hyper_tuning_one.tune_one_model()
 
     # ##########################################
     # # HYPERPARAMETER TUNING
     # ##########################################
     """MODEL SELECTION"""
-    models_params = models.ModelSelection(best_score_param_estimators)
-    best_score_param_estimators = models_params.select_best()
+    # models_params = models.ModelSelection(best_score_param_estimators)
+    # best_score_param_estimators = models_params.select_best()
 
     """PRINT BEST PARAMETERS FOR ALL MODELS"""
-    get_params = models.ModelSelection(best_score_param_estimators)
-    get_params.print_models_params()
+    # get_params = models.ModelSelection(best_score_param_estimators)
+    # get_params.print_models_params()
 
-    """Heatmap"""
 
 main()
