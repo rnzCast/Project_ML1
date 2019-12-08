@@ -39,16 +39,16 @@ def create_param_grids():
         C_range = [10 ** i for i in range(-4, 5)]
         param_grid_log_reg = [{'clf__multi_class': ['ovr'],
                         'clf__solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
-                        'clf__C': C_range,
-                        'max_iter': [1000],
-                        'random_state': 100
+                        'clf__C': C_range
+                        # 'max_iter': [1000],
+                        # 'random_state': 100
                                },
 
                         {'clf__multi_class': ['multinomial'],
                         'clf__solver': ['newton-cg', 'lbfgs', 'sag', 'saga'],
-                        'clf__C': C_range,
-                        'max_iter': [1000],
-                         'random_state': 100
+                        'clf__C': C_range
+                        # 'max_iter': [1000],
+                        #  'random_state': 100
                          }]
 
         param_grids['lr'] = param_grid_log_reg
@@ -107,7 +107,7 @@ class HyperparameterTuning:
                                           iid=False,
                                           cv=StratifiedKFold(n_splits=10,
                                                              shuffle=True,
-                                                             # random_state=0
+                                                             random_state=0
                                                              )
                                           )
 
@@ -164,8 +164,7 @@ class ModelSelection:
         for best_score_param_estimator in self.best_score_param_estimators:
             # Print out [best_score_, best_params_, best_estimator_], where best_estimator_ is a pipeline
             # Since we only print out the type of classifier of the pipeline
-            print([best_score_param_estimator[0], best_score_param_estimator[1],
-                   type(best_score_param_estimator[2].named_steps['clf'])], end='\n\n')
+            print([best_score_param_estimator[0], best_score_param_estimator[1],type(best_score_param_estimator[2].named_steps['clf'])], end='\n\n')
 
 
 

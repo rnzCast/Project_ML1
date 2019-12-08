@@ -204,7 +204,12 @@ def main():
     ##########################################
     X = rd.ReadData(file_name='X_cc_encoded.pickle').read_pickle()
     y = rd.ReadData(file_name='y_cc.pickle').read_pickle()
-    # print(type(y))
+
+    X = X.sample(n=50000, random_state=0)
+    y = y.sample(n=50000, random_state=0)
+
+    X = X.iloc[:200]
+    y = y.iloc[:200]
 
     """ENCODE TARGET"""
     y = pre.Preprocess(y).encode_target()
@@ -213,39 +218,34 @@ def main():
     ##########################################
     # TRAIN TEST SPLIT
     ##########################################
-
-
-
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=0)
 
     ##########################################
     # OVERSAMPLING
     ##########################################
-    # print(y_train.value_counts())
-
     oversampler = pre.Oversampling(X_train, y_train)
     X_train, y_train = oversampler.oversampler()
     # print(pd.DataFrame(data=y_train, columns=['credit_card'])['credit_card'].value_counts())
-    #
+
 
     ##########################################
     # HYPERPARAMETER TUNING
     ##########################################
 
     """CLASSIFIER DICTIONARY"""
-    # clfs = models.classifer_dict()
+    clfs = models.classifer_dict()
 
 
     """PIPELINE DICTIONARY"""
-    # pipe_clfs = models.pipeline_dict(clfs)
+    pipe_clfs = models.pipeline_dict(clfs)
 
     """PARAMETER GRIDS"""
-    # param_grids = models.create_param_grids()
+    param_grids = models.create_param_grids()
 
 
     """HYPERPARAMETER TUNING ALL MODELS"""
-    # hyper_tuning = models.HyperparameterTuning(pipe_clfs, param_grids, X, y)
-    # best_score_param_estimators = hyper_tuning.best_parameters_gs()
+    hyper_tuning = models.HyperparameterTuning(pipe_clfs, param_grids, X, y)
+    best_score_param_estimators = hyper_tuning.best_parameters_gs()
 
     ##########################################
     # HYPERPARAMETER TUNING ONE MODEL
@@ -260,12 +260,12 @@ def main():
     # # HYPERPARAMETER TUNING
     # ##########################################
     """MODEL SELECTION"""
-    # models_params = models.ModelSelection(best_score_param_estimators)
-    # best_score_param_estimators = models_params.select_best()
+    models_params = models.ModelSelection(best_score_param_estimators)
+    best_score_param_estimators = models_params.select_best()
 
     """PRINT BEST PARAMETERS FOR ALL MODELS"""
-    # get_params = models.ModelSelection(best_score_param_estimators)
-    # get_params.print_models_params()
+    get_params = models.ModelSelection(best_score_param_estimators)
+    get_params.print_models_params()
 
 
 main()
