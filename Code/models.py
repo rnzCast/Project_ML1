@@ -40,15 +40,15 @@ def create_param_grids():
         param_grid_log_reg = [{'clf__multi_class': ['ovr'],
                         'clf__solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
                         'clf__C': C_range,
-                        'max_iter': [1000]
-                        # 'random_state': 100
+                        'max_iter': [1000],
+                        'random_state': 100
                                },
 
                         {'clf__multi_class': ['multinomial'],
                         'clf__solver': ['newton-cg', 'lbfgs', 'sag', 'saga'],
                         'clf__C': C_range,
-                        'max_iter': [1000]
-                         # 'random_state': 100
+                        'max_iter': [1000],
+                         'random_state': 100
                          }]
 
         param_grids['lr'] = param_grid_log_reg
@@ -107,7 +107,9 @@ class HyperparameterTuning:
                                           iid=False,
                                           cv=StratifiedKFold(n_splits=10,
                                                              shuffle=True,
-                                                             random_state=0))
+                                                             random_state=0
+                                                             )
+                                          )
 
                         # Fit the pipeline
                         gs = gs.fit(self.X, self.y)
