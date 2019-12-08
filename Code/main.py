@@ -21,27 +21,71 @@ def main():
     # READ DATA
     ##########################################
 
-    """Read the train file"""
+    # """Read the train file"""
     # read_data = rd.ReadData(file_name='train.csv')
     # df = read_data.read_csv()
-    # df = df.sample(n=500000, random_state=1)
+    #
+    # df_1 = df.loc[df['ind_tjcr_fin_ult1'] == 1]
+    # df_1 = df_1.sample(n=250000, random_state=1)
+    #
+    # df_0 = df.loc[df['ind_tjcr_fin_ult1'] == 0]
+    # df_0 = df_0.sample(n=250000, random_state=1)
+    #
+    # df = df_1.append(df_0)
 
-    """ Split features and targets in different pickle files"""
+    ##########################################
+    # PREPROCESSING - CLEANING
+    ##########################################
+    # """DROP IRRELEVANT COLUMNS"""
+    # df = pre.Preprocess(df).drop_columns()
+    #
+    # """RENAME DF"""
+    # df = pre.Preprocess(df).rename_targets()
+    #
+    # """REPLACE NULL WITH NAN"""
+    # df = df.replace('', np.nan)
+    #
+    # """REMOVE ROWS WITH MISSING VALUES"""
+    # df = df.dropna(axis=0)
+    #
+    # """CHANGE DATA TYPES"""
+    # df['age'] = df['age'].astype(np.float64)
+    # df['ind_nuevo'] = df['ind_nuevo'].astype(object)
+    # df['antiguedad'] = df['antiguedad'].astype(np.float64)
+    # df['indrel'] = df['indrel'].astype(object)
+    # df['indrel_1mes'] = df['indrel_1mes'].map({'1.0': '1', '3.0': '3', '1': '1'})
+    # df['cod_prov'] = df['cod_prov'].astype(object)
+    # df['ind_actividad_cliente'] = df['ind_actividad_cliente'].astype(object)
+    #
+    # """ Split features and targets in different pickle files"""
+    #
+    # # print(tabulate(df.sort_values('renta', ascending=False).head(2000), headers=df.columns, tablefmt="grid"), '\n')
+    # df = df[df['renta'] < 1000000]
+    # df = df[df['age'] > 10]
+    # df = df[df['age'] < 80]
+    # df = df[df['antiguedad'] > -800000]
+
+
+    """CHECK OUTLIERS"""
+    # import seaborn as sns
+    # import matplotlib.pyplot as plt
+    # sns.boxplot(x=df['antiguedad'])
+    # plt.show()
+    #
+    #
     # split_df = rd.SplitData(df)
     # X, targets = split_df.split_csv()
+
 
     ###########################################
     # SAVE DATA
     ###########################################
 
-    # """SAVE A TEMPORARY DF FILE"""
-    # save_df = rd.SaveDf(df, name='df')
-    # save_df.save_df()
-
-    # save_df = rd.SaveDf(X, name='X_complete')
+    """SAVE A TEMPORARY DF FILE"""
+    # save_df = rd.SaveDf(X, name='X_500k')
     # save_df.save_df()
     #
-    # save_df = rd.SaveDf(targets, name='targets_complete')
+    # save_df = rd.SaveDf(targets, name='targets_500k')
     # save_df.save_df()
 
     ##########################################
@@ -50,13 +94,9 @@ def main():
     X = rd.ReadData(file_name='X_500k.pickle').read_pickle()
     targets = rd.ReadData(file_name='targets_500k.pickle').read_pickle()
 
-    # print(tabulate(X.head(20), headers=X.columns, tablefmt="grid"))
-    # print(tabulate(targets.head(20), headers=targets.columns, tablefmt="grid"))
-
     ##########################################
     # EDA:  NULL VALUES - NAN - CATEGORICAL CHECK
     ##########################################
-
     """NULL VALUES IN EACH FEATURE"""
     # print("CHECK NULL VALUES - Percentages\n")
     # eda_process = eda.Eda(X)
@@ -71,62 +111,40 @@ def main():
     # cat_check.categorical_feature_checker()
     # print()
 
-    ##########################################
-    # PREPROCESSING - CLEANING
-    ##########################################
-    """DROP IRRELEVANT COLUMNS"""
-    # X = pre.Preprocess(X).drop_columns()
-    # print(tabulate(X.head(20), headers=X.columns, tablefmt="grid"), '\n')
-
-    """RENAME TARGETS"""
-    # targets = pre.Preprocess(targets).rename_targets()
-    # print(tabulate(targets.head(20), headers=targets.columns, tablefmt="grid"), '\n')
-
-    ##########################################
-    # SAVE DATA CLEAN
-    ##########################################
-    """SAVE A TEMPORARY DF FILE"""
-    # rd.SaveDf(X, name='X_500K_clean').save_df()
-    # rd.SaveDf(targets, name='targets_500K_clean').save_df()
-
-    ##########################################
-    # READ CLEAN DATA
-    ##########################################
-    X_500 = rd.ReadData(file_name='X_500K_clean.pickle').read_pickle()
-    targets_500 = rd.ReadData(file_name='targets_500K_clean.pickle').read_pickle()
-
-    ##########################################
+    #########################################
     # PREPROCESSING - IMPUTATION
     ##########################################
 
     """Check NA Values"""
-    impute = pre.DataFrameImputer(X_500)
-    X_500 = impute.fit()
-    X_500 = impute.transform()
+    # impute = pre.DataFrameImputer(X_500)
+    # X_500 = impute.fit()
+    # X_500 = impute.transform()
 
-    print('Check missing values:\n')
-    print(X_500.isna().sum(), '\n')
+    # print('Check missing values:\n')
+    # print(X_500.isna().sum(), '\n')
 
     ##########################################
     # PREPROCESSING - FEATURE SELECTION
     ##########################################
 
     """ENCODE CATEGORICAL FEATURES"""
-    X_500 = pre.Preprocess(X_500).encode_features()
-    # pre.Preprocess(X_500).count_feature_values()
-    # print(tabulate(X2.head(20), headers=X2.columns, tablefmt="grid"), '\n')
+    X = pre.Preprocess(X).encode_features()
+    # pre.Preprocess(X).count_feature_values()
+    # print(tabulate(X.head(20), headers=X.columns, tablefmt="grid"), '\n')
 
     """ENCODE TARGET"""
-    targets_500 = pre.Preprocess(targets_500).encode_target()
-    # pre.Preprocess(targets2).count_feature_values()
+    targets = pre.Preprocess(targets).encode_target()
+    # pre.Preprocess(targets).count_feature_values()
+
+    X = pre.Preprocess(X).drop_col_feature_selection()
 
     """FEATURE IMPORTANCE"""
-    # feature_importance = pre.FeatureImportanceRfc(X_500, targets_500['curr_acct'])
-    # pipe_ft = feature_importance.train_random_forest_classifier()
-    # feature_importance.plot_random_forest_classifier(pipe_ft)
+    feature_importance = pre.FeatureImportanceRfc(X, targets['credit_card'])
+    pipe_ft = feature_importance.train_random_forest_classifier()
+    feature_importance.plot_random_forest_classifier(pipe_ft)
 
     """CORRELATION MAP"""
-    eda.Eda(pd.concat([X_500, targets_500['curr_acct']], axis=1)).cor_map()
+    eda.Eda(pd.concat([X, targets['credit_card']], axis=1)).cor_map()
 
 
     """CHI SQUARED FEATURE SELECTION"""

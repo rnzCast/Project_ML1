@@ -22,8 +22,8 @@ class SplitData:
         self.df = df
 
     def split_csv(self):
-        df_features = self.df.iloc[:, 0:24]
-        df_targets = self.df.iloc[:, 24:]
+        df_features = self.df.iloc[:, 0:17]
+        df_targets = self.df.iloc[:, 17:]
         return df_features, df_targets
 
 
