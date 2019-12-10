@@ -17,19 +17,16 @@ def classifer_dict():
                 'dt': DecisionTreeClassifier(random_state=0),
                 'rf': RandomForestClassifier(random_state=0),
                 'xgb': XGBClassifier(seed=0)}
-
         return clfs
 
 
 """CREATE DICTIONARY OF PIPELINE"""
 def pipeline_dict(clfs):
         pipe_clfs = {}
-
         for name, clf in clfs.items():
                 pipe_clfs[name] = Pipeline([('StandardScaler', StandardScaler()), ('clf', clf)])
-
-
         return pipe_clfs
+
 
 """PARAMETER GRIDS"""
 def create_param_grids():
@@ -50,23 +47,18 @@ def create_param_grids():
                         # 'max_iter': [1000],
                         #  'random_state': 100
                          }]
-
         param_grids['lr'] = param_grid_log_reg
-
 
         """PARAMETER GRID FOR MULTILAYER PERCEPTRON"""
         param_grid_mlp = [{'clf__hidden_layer_sizes': [10, 100],
                        'clf__activation': ['identity', 'logistic', 'tanh', 'relu']}]
-
         param_grids['mlp'] = param_grid_mlp
-
 
         """PARAMETER GRID FOR DECISION TREE"""
         param_grid_dt = [{'clf__min_samples_split': [2, 10, 30],
                        'clf__min_samples_leaf': [1, 10, 30]}]
 
         param_grids['dt'] = param_grid_dt
-
 
         """PARAMETER GRID FOR RANDOM FOREST"""
         param_grid_rf = [{'clf__n_estimators': [10, 100, 1000],
@@ -75,12 +67,10 @@ def create_param_grids():
 
         param_grids['rf'] = param_grid_rf
 
-
         """PARAMETER GRID FOR XGBOOST"""
         param_grid_xgb = [{'clf__eta': [10 ** i for i in range(-4, 1)],
                        'clf__gamma': [0, 10, 100],
                        'clf__lambda': [10 ** i for i in range(-4, 5)]}]
-
         param_grids['xgb'] = param_grid_xgb
 
         return param_grids
@@ -95,7 +85,6 @@ class HyperparameterTuning:
                 self.y = y
 
         def best_parameters_gs(self):
-                # The list of [best_score_, best_params_, best_estimator_]
                 best_score_param_estimators = []
 
                 # For each classifier
@@ -110,15 +99,9 @@ class HyperparameterTuning:
                                                              random_state=0
                                                              )
                                           )
-
-                        # Fit the pipeline
                         gs = gs.fit(self.X, self.y)
-
-                        # Update best_score_param_estimators
                         best_score_param_estimators.append([gs.best_score_, gs.best_params_, gs.best_estimator_])
-
                         return best_score_param_estimators
-
 
 
 class HyperparameterOneModel:
@@ -140,13 +123,8 @@ class HyperparameterOneModel:
                                                      shuffle=True,
                                                      # random_state=0
                                                      ))
-
-                # Fit the pipeline
                 gs = gs.fit(self.X, self.y)
-
-                # Update best_score_param_estimators
                 best_score_param_estimators.append([gs.best_score_, gs.best_params_, gs.best_estimator_])
-
                 return best_score_param_estimators
 
 
@@ -155,16 +133,12 @@ class ModelSelection:
         self.best_score_param_estimators = best_score_param_estimators
 
     def select_best(self):
-        # Sort best_score_param_estimators in descending order of the best_score_
         self.best_score_param_estimators = sorted(self.best_score_param_estimators, key=lambda x: x[0], reverse=True)
         return self.best_score_param_estimators
 
     def print_models_params(self):
-        # For each [best_score_, best_params_, best_estimator_]
         for best_score_param_estimator in self.best_score_param_estimators:
-            # Print out [best_score_, best_params_, best_estimator_], where best_estimator_ is a pipeline
-            # Since we only print out the type of classifier of the pipeline
-            print([best_score_param_estimator[0], best_score_param_estimator[1],type(best_score_param_estimator[2].named_steps['clf'])], end='\n\n')
+            print([best_score_param_estimator[0], best_score_param_estimator[1], type(best_score_param_estimator[2].named_steps['clf'])], end='\n\n')
 
 
 

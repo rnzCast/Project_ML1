@@ -1,18 +1,14 @@
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn import datasets
 from sklearn.model_selection import train_test_split
-from sklearn.feature_selection import SelectFromModel
-from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
-from sklearn.base import TransformerMixin
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-import matplotlib.pyplot as plt
 from imblearn.over_sampling import RandomOverSampler
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 
 class Preprocess:
 
@@ -322,6 +318,33 @@ class Preprocess:
         ])
         return self.df
 
+    def remove_outliers(self):
+        self.df = self.df[self.df['renta'] < 1000000]
+        self.df = self.df[self.df['age'] > 10]
+        self.df = self.df[self.df['age'] < 80]
+        self.df = self.df[self.df['antiguedad'] > -800000]
+        return self.df
+
+    def change_dtypes(self):
+        self.df['age'] = self.df['age'].astype(np.float64)
+        self.df['ind_nuevo'] = self.df['ind_nuevo'].astype(object)
+        self.df['antiguedad'] = self.df['antiguedad'].astype(np.float64)
+        self.df['indrel'] = self.df['indrel'].astype(object)
+        self.df['indrel_1mes'] = self.df['indrel_1mes'].map({'1.0': '1', '3.0': '3', '1': '1'})
+        self.df['cod_prov'] = self.df['cod_prov'].astype(object)
+        self.df['ind_actividad_cliente'] = self.df['ind_actividad_cliente'].astype(object)
+        return self.df
+
+
+class CheckOutliers():
+    def __init__(self, df, feature):
+        self.df = df
+        self.feature = feature
+
+    def check_outliers(self):
+        sns.boxplot(x=self.df[self.feature])
+        plt.show()
+
 
 class FeatureImportanceRfc:
 
@@ -344,36 +367,15 @@ class FeatureImportanceRfc:
         return pipe_rf
 
     def plot_random_forest_classifier(self, pipe_rf):
-        # Convert the importances into one-dimensional 1darray with corresponding df column names as axis labels
         f_importances = pd.Series(pipe_rf.named_steps['RandomForestClassifier'].feature_importances_,
                                   self.X.columns)
 
-        # Sort the array in descending order of the importances
         f_importances = f_importances.sort_values(ascending=False)
         print(f_importances)
 
-        # Draw the bar Plot from f_importances
         f_importances.plot(x='Features', y='Importance', kind='bar', figsize=(64, 36), rot=45, fontsize=10)
-        # Show the plot
         plt.tight_layout()
         plt.show()
-
-
-class Chi2:
-
-    def __init__(self, X, y):
-        self.X = X
-        self.y = y
-
-    def chi2(self):
-        chi_scores = chi2(self.X, self.y)
-        return chi_scores
-
-    def plot_chi2(self, chi_scores):
-        p_values = pd.Series(chi_scores[1], index=self.X.columns)
-        p_values.sort_values(ascending=False, inplace=True)
-        p_values.plot.bar()
-        return plt.show()
 
 
 class DataFrameImputer:
